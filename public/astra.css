@@ -1,0 +1,49 @@
+#response {
+    min-height: 6rem;
+    margin-top: 1em;
+}
+
+.row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.slider-label {
+    min-width: 120px;
+}
+
+.slider-min,
+.slider-max {
+    font-size: 0.9em;
+    color: #888;
+    margin: 0 0.5em;
+}
+
+#status {
+    margin-top: 0.5em;
+    color: #888;
+}
+
+.markdown-body {
+    font-family: inherit;
+    font-size: 1em;
+}
+
+/* Optionally style code blocks, tables, etc., for better readability */
+pre,
+code {
+    background: #f6f8fa;
+    border-radius: 4px;
+    padding: 2px 4px;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+td,
+th {
+    border: 1px solid #bbb;
+    padding: 0.25em 0.5em;
+}
