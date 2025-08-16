@@ -17,6 +17,12 @@
       <label for="prompt">Your Prompt</label>
       <textarea id="prompt" name="prompt" rows="5" required></textarea>
       <div class="row">
+        <div class="row" style="align-items: center; gap: 1em;">
+          <span style="font-size:0.9em; color:#999;">Analytical</span>
+          <input type="range" id="temperature" name="temperature" min="0" max="1" step="0.01" value="0.2" style="flex:1;">
+          <span style="font-size:0.9em; color:#999;">Creative</span>
+          <span>Current: <span id="temp-value">0.2</span></span>
+        </div>
         <button id="send" type="submit">Send</button>
         <button id="stop" type="button" disabled>Stop</button>
       </div>
@@ -28,6 +34,11 @@
   </main>
 
   <script>
+    const tempInput = document.getElementById('temperature');
+    const tempValue = document.getElementById('temp-value');
+    tempInput.addEventListener('input', () => {
+      tempValue.textContent = tempInput.value;
+    });
     const form = document.getElementById('prompt-form');
     const sendBtn = document.getElementById('send');
     const stopBtn = document.getElementById('stop');
@@ -36,23 +47,24 @@
     let controller = null;
 
     form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const prompt = new FormData(form).get('prompt').toString().trim();
-      if (!prompt) return;
+  e.preventDefault();
+  const prompt = new FormData(form).get('prompt').toString().trim();
+  if (!prompt) return;
+  const temperature = parseFloat(tempInput.value);
 
-      out.textContent = '';
-      status.textContent = 'Connecting';
-      sendBtn.disabled = true;
-      stopBtn.disabled = false;
-      controller = new AbortController();
+  out.textContent = '';
+  status.textContent = 'Connecting';
+  sendBtn.disabled = true;
+  stopBtn.disabled = false;
+  controller = new AbortController();
 
-      try {
-        const res = await fetch('https://api.arkoninteractive.com/api/chat/stream', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt }),
-          signal: controller.signal
-        });
+  try {
+    const res = await fetch('https://api.arkoninteractive.com/api/chat/stream', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, temperature }),
+      signal: controller.signal
+    });
 
         if (!res.ok || !res.body) {
           const err = await safeJson(res);
