@@ -4,7 +4,7 @@
   "compatibility_date": "2025-08-01",
   "ai": { "binding": "AI" },
   "routes": [
-    { "pattern": "api.arkoninteractive.com/*", "custom_domain": true }
+    { "pattern": "api.arkoninteractive.com", "custom_domain": true }
   ],
   "observability": { "enabled": true }
 }

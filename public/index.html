@@ -81,3 +81,31 @@
             if (!line) continue;
             try {
               const data = JSON.parse(line.slice(5).trim());
+              if (data.delta) out.textContent += data.delta;
+            } catch {}
+          }
+        }
+      } catch (err) {
+        if (controller?.signal.aborted) {
+          status.textContent = 'Cancelled';
+        } else {
+          status.textContent = 'Error';
+          out.textContent = `Error: ${err.message}`;
+        }
+      } finally {
+        sendBtn.disabled = false;
+        stopBtn.disabled = true;
+        controller = null;
+      }
+    });
+
+    stopBtn.addEventListener('click', () => {
+      if (controller) controller.abort();
+    });
+
+    async function safeJson(r) {
+      try { return await r.json(); } catch { return null; }
+    }
+  </script>
+</body>
+</html>
