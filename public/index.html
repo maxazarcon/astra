@@ -1,38 +1,83 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>My AI Partner</title>
-    <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+  <meta charset="utf-8">
+  <title>Astra Chat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+  <style>
+    #response { white-space: pre-wrap; min-height: 6rem; }
+    .row { display: flex; gap: 0.5rem; align-items: center; }
+  </style>
 </head>
 <body>
-    <header><h1>My AI Partner</h1></header>
-    <main>
-        <form id="prompt-form">
-            <p><label>Your Prompt:</label></p>
-            <textarea name="prompt" rows="5"></textarea>
-            <p><button type="submit">Submit</button></p>
-        </form>
-        <h3>Response:</h3>
-        <p id="response">...</p>
-    </main>
-    <script>
-        document.getElementById('prompt-form').addEventListener('submit', async (event) => {
-            event.preventDefault();
-            const form = event.target;
-            const prompt = new FormData(form).get('prompt');
-            const responseP = document.getElementById('response');
-            
-            responseP.innerText = 'Thinking...';
+  <header><h1>Astra Chat</h1></header>
+  <main>
+    <form id="prompt-form">
+      <label for="prompt">Your Prompt</label>
+      <textarea id="prompt" name="prompt" rows="5" required></textarea>
+      <div class="row">
+        <button id="send" type="submit">Send</button>
+        <button id="stop" type="button" disabled>Stop</button>
+      </div>
+    </form>
 
-            const response = await fetch('/api/ask', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt })
-            });
-            
-            const result = await response.json();
-            responseP.innerText = result.answer;
+    <h3>Response</h3>
+    <pre id="response">...</pre>
+    <p id="status"></p>
+  </main>
+
+  <script>
+    const form = document.getElementById('prompt-form');
+    const sendBtn = document.getElementById('send');
+    const stopBtn = document.getElementById('stop');
+    const out = document.getElementById('response');
+    const status = document.getElementById('status');
+    let controller = null;
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const prompt = new FormData(form).get('prompt').toString().trim();
+      if (!prompt) return;
+
+      out.textContent = '';
+      status.textContent = 'Connecting';
+      sendBtn.disabled = true;
+      stopBtn.disabled = false;
+      controller = new AbortController();
+
+      try {
+        const res = await fetch('https://api.arkoninteractive.com/api/chat/stream', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt }),
+          signal: controller.signal
         });
-    </script>
-</body>
-</html>
+
+        if (!res.ok || !res.body) {
+          const err = await safeJson(res);
+          throw new Error(err?.error || `HTTP ${res.status}`);
+        }
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        status.textContent = 'Streaming';
+
+        for (;;) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+
+          const frames = buffer.split('\n\n');
+          buffer = frames.pop() || '';
+
+          for (const frame of frames) {
+            if (frame.startsWith('event: done')) {
+              status.textContent = 'Done';
+              break;
+            }
+            const line = frame.split('\n').find(l => l.startsWith('data:'));
+            if (!line) continue;
+            try {
+              const data = JSON.parse(line.slice(5).trim());
