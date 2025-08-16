@@ -1,49 +1,129 @@
-#response {
-    min-height: 6rem;
-    margin-top: 1em;
+body {
+  background: #f7f7fb;
+}
+header {
+  text-align: center;
+  margin-bottom: 0.5em;
+}
+main {
+  max-width: 640px;
+  margin: 0 auto;
+  position: relative;
+  min-height: 80vh;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 3px 16px rgba(0,0,0,0.05);
+  padding-bottom: 90px;
 }
 
-.row {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
+.chat-thread {
+  padding: 1.5em 1em 0 1em;
+  min-height: 55vh;
+  max-height: 70vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2em;
 }
 
-.slider-label {
-    min-width: 120px;
+.message {
+  display: flex;
+  flex-direction: column;
+  max-width: 85%;
+  word-break: break-word;
+  font-size: 1.06em;
+  line-height: 1.45;
 }
 
-.slider-min,
-.slider-max {
-    font-size: 0.9em;
-    color: #888;
-    margin: 0 0.5em;
+.message.user {
+  align-self: flex-end;
+  background: #d1e8ff;
+  color: #333;
+  border-radius: 16px 16px 6px 16px;
+  padding: 0.8em 1em;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+.message.ai {
+  align-self: flex-start;
+  background: #ededed;
+  color: #222;
+  border-radius: 16px 16px 16px 6px;
+  padding: 0.8em 1em;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+}
+
+.markdown-body pre, .markdown-body code {
+  background: #f6f8fa;
+  border-radius: 4px;
+  padding: 2px 4px;
+  font-size: 0.97em;
+}
+
+.markdown-body table { border-collapse: collapse; }
+.markdown-body td, .markdown-body th { border: 1px solid #bbb; padding: 0.25em 0.5em; }
+
+.chat-input-bar {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  max-width: 640px;
+  margin: 0 auto;
+  background: #fff;
+  border-top: 1px solid #ddd;
+  padding: 0.75em 1em 0.75em 1em;
+  display: flex;
+  gap: 0.5em;
+  align-items: end;
+  z-index: 10;
+}
+
+#prompt {
+  flex: 1 1 auto;
+  min-height: 2em;
+  max-height: 8em;
+  resize: vertical;
+  padding: 0.7em 1em;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1em;
+}
+
+.slider-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-right: 0.5em;
+  margin-left: 0.5em;
+  font-size: 0.98em;
+}
+#temperature {
+  margin-top: 2px;
+  width: 90px;
+}
+#send, #stop {
+  margin-left: 0.25em;
+  min-width: 56px;
+  font-size: 1em;
+  padding: 0.6em 0.9em;
+  border-radius: 6px;
+  border: none;
+  background: #6ba4ff;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+#stop {
+  background: #999;
+  color: #fff;
+}
+#send:disabled, #stop:disabled {
+  background: #ddd;
+  color: #aaa;
+  cursor: not-allowed;
 }
 
 #status {
-    margin-top: 0.5em;
-    color: #888;
-}
-
-.markdown-body {
-    font-family: inherit;
-    font-size: 1em;
-}
-
-/* Optionally style code blocks, tables, etc., for better readability */
-pre,
-code {
-    background: #f6f8fa;
-    border-radius: 4px;
-    padding: 2px 4px;
-}
-
-table {
-    border-collapse: collapse;
-}
-
-td,
-th {
-    border: 1px solid #bbb;
-    padding: 0.25em 0.5em;
+  margin-top: 1em;
+  color: #888;
+  text-align: center;
+  font-size: 0.97em;
 }
