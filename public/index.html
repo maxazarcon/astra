@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My AI Partner</title>
+    <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+</head>
+<body>
+    <header><h1>My AI Partner</h1></header>
+    <main>
+        <form id="prompt-form">
+            <p><label>Your Prompt:</label></p>
+            <textarea name="prompt" rows="5"></textarea>
+            <p><button type="submit">Submit</button></p>
+        </form>
+        <h3>Response:</h3>
+        <p id="response">...</p>
+    </main>
+    <script>
+        document.getElementById('prompt-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const form = event.target;
+            const prompt = new FormData(form).get('prompt');
+            const responseP = document.getElementById('response');
+            
+            responseP.innerText = 'Thinking...';
+
+            const response = await fetch('/api/ask', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt })
+            });
+            
+            const result = await response.json();
+            responseP.innerText = result.answer;
+        });
+    </script>
+</body>
+</html>
