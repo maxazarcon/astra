@@ -11,14 +11,13 @@
   <header><h1>Astra Chat</h1></header>
   <main>
     <div id="chat-thread" class="chat-thread"></div>
-
     <form id="prompt-form" class="chat-input-bar">
-      <textarea id="prompt" name="prompt" rows="2" required placeholder="Send a message..." autocomplete="off"></textarea>
+      <textarea id="prompt" rows="2" required placeholder="Send a message..."></textarea>
       <div class="slider-group">
         <label for="temperature">
           Temperature: <span id="temp-value">0.2</span>
         </label>
-        <input type="range" id="temperature" name="temperature" min="0" max="1" step="0.01" value="0.2">
+        <input type="range" id="temperature" min="0" max="1" step="0.01" value="0.2">
       </div>
       <button id="send" type="submit">Send</button>
       <button id="stop" type="button" disabled>Stop</button>
