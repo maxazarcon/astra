@@ -160,6 +160,7 @@ main {
   line-height: 1.52;
   box-shadow: 0 2px 8px #0002;
   word-break: break-word;
+  display: block; /* Important: ensures proper list layout */
 }
 .user .bubble {
   background: var(--user);
@@ -177,6 +178,31 @@ main {
   color: #aef;
   border-radius: 6px;
   padding: 2px 5px;
+}
+
+.markdown-body {
+  /* Optionally tweak font for code blocks or markdown styling */
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  margin: 0.7em 0 0.7em 1.5em !important;
+  padding-left: 1.2em !important;
+  list-style-position: outside !important;
+  list-style-type: disc !important;
+  display: block !important;
+}
+.markdown-body ol {
+  list-style-type: decimal !important;
+}
+.markdown-body li {
+  margin-bottom: 0.3em !important;
+  display: list-item !important;
+}
+.bubble ul,
+.bubble ol {
+  background: none;
+  color: inherit;
 }
 
 #prompt-form.chat-input-bar {
@@ -233,27 +259,4 @@ main {
   font-size: 0.99em;
   text-align: center;
   margin: 1.4em 0 0 0;
-}
-
-.markdown-body ul,
-.markdown-body ol {
-  margin: 0.7em 0 0.7em 1.5em;
-  padding-left: 1.2em;
-  list-style-position: outside;
-  list-style-type: disc;
-}
-
-.markdown-body ol {
-  list-style-type: decimal;
-}
-
-.markdown-body li {
-  margin-bottom: 0.3em;
-  display: list-item;
-}
-
-.bubble ul,
-.bubble ol {
-  background: none;
-  color: inherit;
 }
