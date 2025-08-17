@@ -6,23 +6,44 @@ const status = document.getElementById('status');
 const tempInput = document.getElementById('temperature');
 const tempValue = document.getElementById('temp-value');
 const thread = document.getElementById('chat-thread');
-let controller = null;
+
+// Sidebar/flyout
+const sidebar = document.getElementById('sidebar');
+const sidebarOverlay = document.getElementById('sidebar-overlay');
+const menuBtn = document.getElementById('menu-btn');
+const closeSidebarBtn = document.getElementById('close-sidebar');
+
+// Settings flyout controls
+menuBtn.onclick = () => openSidebar();
+closeSidebarBtn.onclick = () => closeSidebar();
+sidebarOverlay.onclick = () => closeSidebar();
+function openSidebar() {
+  sidebar.classList.add('open');
+  sidebarOverlay.style.display = 'block';
+}
+function closeSidebar() {
+  sidebar.classList.remove('open');
+  sidebarOverlay.style.display = 'none';
+}
 
 tempInput.addEventListener('input', () => {
   tempValue.textContent = tempInput.value;
 });
 
+let controller = null;
+
 function addMessage(role, text) {
   const msg = document.createElement('div');
-  msg.className = `message ${role}` + (role === "ai" ? " markdown-body" : "");
+  msg.className = `message ${role}`;
+  // Optionally, add avatar/space for future
   if (role === "ai") {
-    msg.innerHTML = marked.parse(text);
+    msg.innerHTML = `<div class="bubble markdown-body">${marked.parse(text)}</div>`;
   } else {
-    msg.textContent = text;
+    msg.innerHTML = `<div class="bubble">${text}</div>`;
   }
   thread.appendChild(msg);
   thread.scrollTop = thread.scrollHeight;
-  return msg;
+  return msg.querySelector('.bubble');
 }
 
 form.addEventListener('submit', async (e) => {
@@ -33,13 +54,13 @@ form.addEventListener('submit', async (e) => {
 
   sendBtn.disabled = true;
   stopBtn.disabled = false;
-  status.textContent = 'Connecting';
+  status.textContent = '';
 
   // Show user message
   addMessage('user', prompt);
 
   controller = new AbortController();
-  let aiMsg = addMessage('ai', ''); // create placeholder
+  let aiBubble = addMessage('ai', ''); // create placeholder
 
   let fullResponse = "";
   try {
@@ -58,7 +79,7 @@ form.addEventListener('submit', async (e) => {
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
-    status.textContent = 'Streaming';
+    status.textContent = '';
 
     stream_loop:
     for (;;) {
@@ -71,8 +92,7 @@ form.addEventListener('submit', async (e) => {
 
       for (const frame of frames) {
         if (frame.startsWith('event: done')) {
-          status.textContent = 'Done';
-          aiMsg.innerHTML = marked.parse(fullResponse);
+          aiBubble.innerHTML = marked.parse(fullResponse);
           fullResponse = "";
           break stream_loop;
         }
@@ -82,17 +102,16 @@ form.addEventListener('submit', async (e) => {
           const data = JSON.parse(line.slice(5).trim());
           if (data.delta) {
             fullResponse += data.delta;
-            aiMsg.innerHTML = marked.parse(fullResponse); // live markdown
+            aiBubble.innerHTML = marked.parse(fullResponse);
           }
         } catch {}
       }
     }
   } catch (err) {
     if (controller?.signal.aborted) {
-      status.textContent = 'Cancelled';
+      aiBubble.innerHTML = `<span style="color:#bbb">Cancelled.</span>`;
     } else {
-      status.textContent = 'Error';
-      aiMsg.innerHTML = `<span style="color:#b00">Error: ${err.message}</span>`;
+      aiBubble.innerHTML = `<span style="color:#b00">Error: ${err.message}</span>`;
     }
   } finally {
     sendBtn.disabled = false;

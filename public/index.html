@@ -4,26 +4,38 @@
   <meta charset="utf-8">
   <title>Astra Chat</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="./astra.css">
+  <link rel="stylesheet" href="astra.css">
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
-  <header><h1>Astra Chat</h1></header>
-  <main>
-    <div id="chat-thread" class="chat-thread"></div>
-    <form id="prompt-form" class="chat-input-bar">
-      <textarea id="prompt" rows="2" required placeholder="Send a message..."></textarea>
-      <div class="slider-group">
+  <nav class="nav-top">
+    <button id="menu-btn" class="icon-btn" aria-label="Open menu">&#9776;</button>
+    <span class="brand">ASTRA</span>
+  </nav>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-content">
+      <button id="close-sidebar" class="icon-btn close-btn" aria-label="Close menu">&times;</button>
+      <h2>Settings</h2>
+      <div class="sidebar-setting">
         <label for="temperature">
           Temperature: <span id="temp-value">0.2</span>
         </label>
         <input type="range" id="temperature" min="0" max="1" step="0.01" value="0.2">
       </div>
+    </div>
+  </aside>
+  <div id="sidebar-overlay"></div>
+
+  <main>
+    <div id="chat-thread" class="chat-thread"></div>
+    <form id="prompt-form" class="chat-input-bar" autocomplete="off">
+      <input id="prompt" type="text" autocomplete="off" placeholder="Send a message..." required>
       <button id="send" type="submit">Send</button>
       <button id="stop" type="button" disabled>Stop</button>
     </form>
     <p id="status"></p>
   </main>
-  <script src="./astra.js"></script>
+  <script src="astra.js"></script>
 </body>
 </html>
