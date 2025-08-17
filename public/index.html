@@ -25,8 +25,11 @@
     <div class="sidebar-content">
       <button id="close-sidebar" class="icon-btn close-btn" aria-label="Close menu">&times;</button>
       <h2>Settings</h2>
-      <label for="temperature">Temperature: <span id="temp-value">0.2</span></label>
+      <label for="temperature">Temperature <span id="temp-value">0.2</span></label>
       <input type="range" id="temperature" min="0" max="1" step="0.01" value="0.2" />
+
+      <label for="tokens">Max Tokens <span id="tokens-value">1000</span></label>
+      <input type="range" id="tokens" min="100" max="4000" step="100" value="1000" />
     </div>
   </aside>
   <div id="sidebar-overlay"></div>

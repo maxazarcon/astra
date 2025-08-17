@@ -50,6 +50,8 @@ body{
 #sidebar.open ~ #sidebar-overlay{display:block}
 .sidebar-content{padding:22px 18px;display:flex;flex-direction:column;gap:14px}
 .close-btn{font-size:28px;align-self:flex-end}
+.sidebar-content label{display:flex;justify-content:space-between;font-size:14px}
+.sidebar-content label span{color:var(--muted)}
 .sidebar-content input[type="range"]{width:100%}
 
 /* 3-COLUMN PAGE GRID */
