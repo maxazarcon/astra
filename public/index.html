@@ -1,42 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Astra Chat</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="astra.css">
+  <link rel="stylesheet" href="astra.css" />
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
-  <nav class="nav-top">
-    <button id="menu-btn" class="icon-btn" aria-label="Open menu">&#9776;</button>
-    <span class="brand">ASTRA</span>
-  </nav>
+  <!-- HEADER -->
+  <header class="topbar">
+    <div class="topbar__left">
+      <button id="menu-btn" class="icon-btn" aria-label="Open menu">&#9776;</button>
+      <span class="brand">ASTRA</span>
+    </div>
+    <div class="topbar__right">
+      <!-- placeholder for future avatar -->
+      <div class="avatar ph"></div>
+    </div>
+  </header>
 
+  <!-- SETTINGS FLYOUT (unchanged markup) -->
   <aside id="sidebar" class="sidebar">
     <div class="sidebar-content">
       <button id="close-sidebar" class="icon-btn close-btn" aria-label="Close menu">&times;</button>
       <h2>Settings</h2>
-      <div class="sidebar-setting">
-        <label for="temperature">Temperature: <span id="temp-value">0.2</span></label>
-        <input type="range" id="temperature" min="0" max="1" step="0.01" value="0.2">
-      </div>
+      <label for="temperature">Temperature: <span id="temp-value">0.2</span></label>
+      <input type="range" id="temperature" min="0" max="1" step="0.01" value="0.2" />
     </div>
   </aside>
   <div id="sidebar-overlay"></div>
 
-  <main>
-    <div id="chat-thread" class="chat-thread"></div>
+  <!-- PAGE GRID: [gutter] [content] [gutter] -->
+  <main class="page3">
+    <div class="gutter"></div>
 
-    <!-- INPUT BAR (updated layout) -->
-    <form id="prompt-form" class="chat-input-bar" autocomplete="off">
-      <button type="button" id="attach" class="icon-round" aria-label="Attach">+</button>
-      <input id="prompt" type="text" placeholder="Send a message…" required>
-      <button id="send" type="submit">Send</button>
-      <button id="stop" type="button" disabled>Stop</button>
-    </form>
+    <section class="center-col">
+      <!-- CHAT SURFACE -->
+      <div id="chat-thread" class="chat-thread"></div>
 
-    <p id="status"></p>
+      <!-- INPUT BAR (pinned to bottom of center column) -->
+      <form id="prompt-form" class="inputbar" autocomplete="off">
+        <button type="button" id="attach" class="icon-round" aria-label="Attach">+</button>
+        <input id="prompt" type="text" placeholder="Send a message…" required />
+        <button id="send" type="submit">Send</button>
+        <button id="stop" type="button" disabled>Stop</button>
+      </form>
+
+      <p id="status" class="status"></p>
+    </section>
+
+    <div class="gutter"></div>
   </main>
 
   <script src="astra.js"></script>
