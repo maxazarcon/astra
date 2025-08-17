@@ -5,6 +5,8 @@ const promptInput = document.getElementById('prompt');
 const status = document.getElementById('status');
 const tempInput = document.getElementById('temperature');
 const tempValue = document.getElementById('temp-value');
+const tokensInput = document.getElementById('tokens');
+const tokensValue = document.getElementById('tokens-value');
 const thread = document.getElementById('chat-thread');
 
 // Sidebar/flyout
@@ -29,6 +31,9 @@ function closeSidebar() {
 tempInput.addEventListener('input', () => {
   tempValue.textContent = tempInput.value;
 });
+tokensInput.addEventListener('input', () => {
+  tokensValue.textContent = tokensInput.value;
+});
 
 let controller = null;
 
@@ -51,6 +56,7 @@ form.addEventListener('submit', async (e) => {
   const prompt = promptInput.value.trim();
   if (!prompt) return;
   const temperature = parseFloat(tempInput.value);
+  const maxTokens = parseInt(tokensInput.value, 10);
 
   sendBtn.disabled = true;
   stopBtn.disabled = false;
@@ -67,7 +73,7 @@ form.addEventListener('submit', async (e) => {
     const res = await fetch('https://api.arkoninteractive.com/api/chat/stream', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt, temperature }),
+      body: JSON.stringify({ prompt, temperature, max_tokens: maxTokens }),
       signal: controller.signal
     });
 
