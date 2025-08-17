@@ -234,3 +234,26 @@ main {
   text-align: center;
   margin: 1.4em 0 0 0;
 }
+
+.markdown-body ul,
+.markdown-body ol {
+  margin: 0.7em 0 0.7em 1.5em;
+  padding-left: 1.2em;
+  list-style-position: outside;
+  list-style-type: disc;
+}
+
+.markdown-body ol {
+  list-style-type: decimal;
+}
+
+.markdown-body li {
+  margin-bottom: 0.3em;
+  display: list-item;
+}
+
+.bubble ul,
+.bubble ol {
+  background: none;
+  color: inherit;
+}
