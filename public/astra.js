@@ -45,11 +45,69 @@ attachBtn.addEventListener('click', () => {
   fileInput.click();
 });
 
-fileInput.addEventListener('change', () => {
+function resizeImage(file, maxSize = 1024) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.src = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(img.src);
+      let { width, height } = img;
+
+      if (width <= maxSize && height <= maxSize) {
+        return resolve(file); // No resizing needed
+      }
+
+      if (width > height) {
+        if (width > maxSize) {
+          height = Math.round(height * (maxSize / width));
+          width = maxSize;
+        }
+      } else {
+        if (height > maxSize) {
+          width = Math.round(width * (maxSize / height));
+          height = maxSize;
+        }
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const resizedFile = new File([blob], file.name, {
+            type: file.type,
+            lastModified: Date.now(),
+          });
+          resolve(resizedFile);
+        } else {
+          reject(new Error('Canvas to Blob conversion failed'));
+        }
+      }, file.type, 0.9);
+    };
+    img.onerror = (err) => {
+      URL.revokeObjectURL(img.src);
+      reject(err);
+    };
+  });
+}
+
+fileInput.addEventListener('change', async () => {
   const file = fileInput.files[0];
   if (file) {
-    attachedFile = file;
-    displayImagePreview(file);
+    try {
+      status.textContent = 'Resizing image...';
+      const resizedFile = await resizeImage(file);
+      attachedFile = resizedFile;
+      displayImagePreview(resizedFile);
+      status.textContent = '';
+    } catch (err) {
+      console.error('Image resize error:', err);
+      status.textContent = 'Error resizing image.';
+      fileInput.value = '';
+    }
   }
 });
 
