@@ -44,8 +44,12 @@
 
       <!-- INPUT BAR (pinned to bottom of center column) -->
       <form id="prompt-form" class="inputbar" autocomplete="off">
+        <input type="file" id="file-input" accept="image/*" style="display:none" />
         <button type="button" id="attach" class="icon-round" aria-label="Attach">+</button>
-        <input id="prompt" type="text" placeholder="Send a message…" required />
+        <div class="prompt-wrapper">
+          <div id="preview-container"></div>
+          <input id="prompt" type="text" placeholder="Send a message…" />
+        </div>
         <button id="send" type="submit">Send</button>
         <button id="stop" type="button" disabled>Stop</button>
       </form>

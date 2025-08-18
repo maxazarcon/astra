@@ -8,6 +8,9 @@ const tempValue = document.getElementById('temp-value');
 const tokensInput = document.getElementById('tokens');
 const tokensValue = document.getElementById('tokens-value');
 const thread = document.getElementById('chat-thread');
+const attachBtn = document.getElementById('attach');
+const fileInput = document.getElementById('file-input');
+const previewContainer = document.getElementById('preview-container');
 
 // Sidebar/flyout
 const sidebar = document.getElementById('sidebar');
@@ -36,16 +39,60 @@ tokensInput.addEventListener('input', () => {
 });
 
 let controller = null;
+let attachedFile = null;
 
-function addMessage(role, text) {
+attachBtn.addEventListener('click', () => {
+  fileInput.click();
+});
+
+fileInput.addEventListener('change', () => {
+  const file = fileInput.files[0];
+  if (file) {
+    attachedFile = file;
+    displayImagePreview(file);
+  }
+});
+
+function displayImagePreview(file) {
+  previewContainer.innerHTML = '';
+  const previewWrapper = document.createElement('div');
+  previewWrapper.className = 'img-preview';
+
+  const img = document.createElement('img');
+  img.src = URL.createObjectURL(file);
+  img.onload = () => URL.revokeObjectURL(img.src);
+
+  const removeBtn = document.createElement('button');
+  removeBtn.className = 'remove-btn';
+  removeBtn.textContent = '×';
+  removeBtn.onclick = () => {
+    attachedFile = null;
+    previewContainer.innerHTML = '';
+    fileInput.value = ''; // Clear the file input
+  };
+
+  previewWrapper.appendChild(img);
+  previewWrapper.appendChild(removeBtn);
+  previewContainer.appendChild(previewWrapper);
+}
+
+function addMessage(role, text, imageUrl = null) {
   const msg = document.createElement('div');
   msg.className = `message ${role}`;
-  // Optionally, add avatar/space for future
-  if (role === "ai") {
-    msg.innerHTML = `<div class="bubble markdown-body">${marked.parse(text)}</div>`;
-  } else {
-    msg.innerHTML = `<div class="bubble">${text}</div>`;
+  let content = '';
+
+  if (imageUrl) {
+    content += `<img src="${imageUrl}" class="msg-image" alt="attached image" />`;
   }
+  if (text) {
+    if (role === "ai") {
+      content += `<div class="bubble markdown-body">${marked.parse(text)}</div>`;
+    } else {
+      content += `<div class="bubble">${text}</div>`;
+    }
+  }
+  
+  msg.innerHTML = content;
   thread.appendChild(msg);
   thread.scrollTop = thread.scrollHeight;
   return msg.querySelector('.bubble');
@@ -54,7 +101,7 @@ function addMessage(role, text) {
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
   const prompt = promptInput.value.trim();
-  if (!prompt) return;
+  if (!prompt && !attachedFile) return;
   const temperature = parseFloat(tempInput.value);
   const maxTokens = parseInt(tokensInput.value, 10);
 
@@ -63,17 +110,25 @@ form.addEventListener('submit', async (e) => {
   status.textContent = '';
 
   // Show user message
-  addMessage('user', prompt);
+  const userImageURL = attachedFile ? URL.createObjectURL(attachedFile) : null;
+  addMessage('user', prompt, userImageURL);
 
   controller = new AbortController();
   let aiBubble = addMessage('ai', ''); // create placeholder
 
   let fullResponse = "";
   try {
+    const formData = new FormData();
+    formData.append('prompt', prompt);
+    formData.append('temperature', temperature);
+    formData.append('max_tokens', maxTokens);
+    if (attachedFile) {
+      formData.append('image', attachedFile);
+    }
+
     const res = await fetch('https://api.arkoninteractive.com/api/chat/stream', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt, temperature, max_tokens: maxTokens }),
+      body: formData,
       signal: controller.signal
     });
 
@@ -124,6 +179,11 @@ form.addEventListener('submit', async (e) => {
     stopBtn.disabled = true;
     controller = null;
     promptInput.value = "";
+    if (attachedFile) {
+      attachedFile = null;
+      previewContainer.innerHTML = '';
+      fileInput.value = '';
+    }
     promptInput.focus();
   }
 });

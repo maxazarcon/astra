@@ -116,7 +116,7 @@ body{
 /* INPUT BAR – pinned to bottom of center column */
 .inputbar{
   position:absolute; left:0; right:0; bottom:0;
-  height: var(--input-h);
+  min-height: var(--input-h);
   display:grid; grid-template-columns:44px 1fr auto auto; align-items:center; gap:10px;
   background: rgba(27,30,34,.98);
   border:1px solid var(--line);
@@ -124,9 +124,53 @@ body{
   padding: 10px 12px;
   box-shadow: 0 10px 32px rgba(0,0,0,.35);
 }
+
+.prompt-wrapper{
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+#preview-container{
+  display: flex;
+  gap: 8px;
+  padding: 0 4px;
+}
+
+.img-preview{
+  position: relative;
+}
+
+.img-preview img{
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.img-preview .remove-btn{
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 16px;
+  height: 16px;
+  background: #000c;
+  color: #fff;
+  border: 1px solid #fff8;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: bold;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  line-height: 1;
+}
+
 .icon-round{
   width:36px;height:36px;display:grid;place-items:center;
-  border-radius:10px;border:1px solid var(--line);
+  border-radius:50%;border:1px solid var(--line);
   background:#171a1e;color:#aab2bd;font-size:20px;cursor:pointer;
 }
 .icon-round:hover{background:#20242a;color:#eef1f6}
