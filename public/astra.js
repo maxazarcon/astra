@@ -150,11 +150,13 @@ function addMessage(role, text, imageUrl = null) {
     imageHtml = `<img src="${imageUrl}" class="msg-image" alt="attached image" />`;
   }
 
-  // For user messages, image comes first. For AI, bubble comes first.
-  if (role === 'user') {
-    msg.innerHTML = imageHtml + bubbleHtml;
+  if (role === 'user' && (imageHtml || bubbleHtml)) {
+    const group = document.createElement('div');
+    group.className = 'bubble-group';
+    group.innerHTML = imageHtml + bubbleHtml;
+    msg.appendChild(group);
   } else {
-    msg.innerHTML = bubbleHtml + imageHtml;
+    msg.innerHTML = imageHtml + bubbleHtml;
   }
 
   thread.appendChild(msg);
