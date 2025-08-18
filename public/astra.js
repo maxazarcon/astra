@@ -276,6 +276,13 @@ form.addEventListener('submit', async (e) => {
       buffer = lines.pop() || "";
 
       for (const line of lines) {
+        if (line.startsWith("event: tool_result")) {
+          const data = JSON.parse(line.slice(line.indexOf(':') + 1).trim());
+          if (data.type === 'image') {
+            aiBubble.innerHTML = `<img src="${data.data}" class="msg-image" alt="generated image" />`;
+          }
+          return;
+        }
         if (line.startsWith("event: done")) {
           aiBubble.innerHTML = marked.parse(fullResponse);
           fullResponse = "";
