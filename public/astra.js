@@ -244,8 +244,8 @@ form.addEventListener('submit', async (e) => {
         if (line.startsWith("data:")) {
           try {
             const data = JSON.parse(line.slice(5).trim());
-            if (data.delta) {
-              fullResponse += data.delta;
+            if (data.response) { // The raw stream uses 'response'
+              fullResponse += data.response;
               aiBubble.innerHTML = marked.parse(fullResponse);
             }
           } catch {}
