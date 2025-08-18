@@ -79,20 +79,26 @@ function displayImagePreview(file) {
 function addMessage(role, text, imageUrl = null) {
   const msg = document.createElement('div');
   msg.className = `message ${role}`;
-  let content = '';
-
-  if (imageUrl) {
-    content += `<img src="${imageUrl}" class="msg-image" alt="attached image" />`;
-  }
-  if (text) {
-    if (role === "ai") {
-      content += `<div class="bubble markdown-body">${marked.parse(text)}</div>`;
-    } else {
-      content += `<div class="bubble">${text}</div>`;
-    }
-  }
   
-  msg.innerHTML = content;
+  let bubbleHtml = '';
+  if (role === 'ai') {
+    bubbleHtml = `<div class="bubble markdown-body">${marked.parse(text || '')}</div>`;
+  } else if (text) {
+    bubbleHtml = `<div class="bubble">${text}</div>`;
+  }
+
+  let imageHtml = '';
+  if (imageUrl) {
+    imageHtml = `<img src="${imageUrl}" class="msg-image" alt="attached image" />`;
+  }
+
+  // For user messages, image comes first. For AI, bubble comes first.
+  if (role === 'user') {
+    msg.innerHTML = imageHtml + bubbleHtml;
+  } else {
+    msg.innerHTML = bubbleHtml + imageHtml;
+  }
+
   thread.appendChild(msg);
   thread.scrollTop = thread.scrollHeight;
   return msg.querySelector('.bubble');
