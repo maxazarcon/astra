@@ -225,33 +225,31 @@ form.addEventListener('submit', async (e) => {
 
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
-    let buffer = '';
-    status.textContent = '';
+    let buffer = "";
 
-    stream_loop:
-    for (;;) {
+    while (true) {
       const { value, done } = await reader.read();
       if (done) break;
+
       buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop() || "";
 
-      const frames = buffer.split('\n\n');
-      buffer = frames.pop() || '';
-
-      for (const frame of frames) {
-        if (frame.startsWith('event: done')) {
+      for (const line of lines) {
+        if (line.startsWith("event: done")) {
           aiBubble.innerHTML = marked.parse(fullResponse);
           fullResponse = "";
-          break stream_loop;
+          return;
         }
-        const line = frame.split('\n').find(l => l.startsWith('data:'));
-        if (!line) continue;
-        try {
-          const data = JSON.parse(line.slice(5).trim());
-          if (data.delta) {
-            fullResponse += data.delta;
-            aiBubble.innerHTML = marked.parse(fullResponse);
-          }
-        } catch {}
+        if (line.startsWith("data:")) {
+          try {
+            const data = JSON.parse(line.slice(5).trim());
+            if (data.delta) {
+              fullResponse += data.delta;
+              aiBubble.innerHTML = marked.parse(fullResponse);
+            }
+          } catch {}
+        }
       }
     }
   } catch (err) {
