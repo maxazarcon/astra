@@ -184,6 +184,34 @@ function addMessage(role, text, imageUrl = null) {
   return msg.querySelector('.bubble');
 }
 
+async function handleImageGeneration(prompt, aiBubble) {
+  try {
+    aiBubble.innerHTML = 'Generating image...';
+    const res = await fetch('https://api.arkoninteractive.com/api/image/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt }),
+      signal: controller.signal,
+    });
+
+    if (!res.ok) {
+      const err = await safeJson(res);
+      throw new Error(err?.error || `HTTP ${res.status}`);
+    }
+
+    const blob = await res.blob();
+    const imageUrl = URL.createObjectURL(blob);
+    aiBubble.innerHTML = `<img src="${imageUrl}" class="msg-image" alt="generated image" />`;
+
+  } catch (err) {
+    if (controller?.signal.aborted) {
+      aiBubble.innerHTML = `<span style="color:#bbb">Cancelled.</span>`;
+    } else {
+      aiBubble.innerHTML = `<span style="color:#b00">Error: ${err.message}</span>`;
+    }
+  }
+}
+
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
   const prompt = promptInput.value.trim();
@@ -201,6 +229,18 @@ form.addEventListener('submit', async (e) => {
 
   controller = new AbortController();
   let aiBubble = addMessage('ai', ''); // create placeholder
+
+  if (prompt.startsWith('/imagine ')) {
+    const imagePrompt = prompt.slice(8).trim();
+    await handleImageGeneration(imagePrompt, aiBubble);
+    // Reset form and controls
+    sendBtn.disabled = false;
+    stopBtn.disabled = true;
+    controller = null;
+    promptInput.value = "";
+    promptInput.focus();
+    return; // End execution here for image generation
+  }
 
   let fullResponse = "";
   try {
