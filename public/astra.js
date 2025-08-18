@@ -45,7 +45,7 @@ attachBtn.addEventListener('click', () => {
   fileInput.click();
 });
 
-function resizeImage(file, maxSize = 1024) {
+function resizeImage(file, maxSize = 768) {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.src = URL.createObjectURL(file);
