@@ -54,6 +54,14 @@ body{
 .sidebar-content label span{color:var(--muted)}
 .sidebar-content input[type="range"]{width:100%}
 
+.setting-description {
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: -8px;
+  margin-bottom: 8px;
+}
+
 /* 3-COLUMN PAGE GRID */
 .page3{
   display:grid;

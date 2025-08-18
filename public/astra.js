@@ -5,6 +5,7 @@ const promptInput = document.getElementById('prompt');
 const status = document.getElementById('status');
 const tempInput = document.getElementById('temperature');
 const tempValue = document.getElementById('temp-value');
+const tempDescription = document.getElementById('temp-description');
 const tokensInput = document.getElementById('tokens');
 const tokensValue = document.getElementById('tokens-value');
 const thread = document.getElementById('chat-thread');
@@ -31,12 +32,31 @@ function closeSidebar() {
   sidebarOverlay.style.display = 'none';
 }
 
+function updateTempDescription() {
+  const temp = parseFloat(tempInput.value);
+  let description = "";
+  if (temp >= 0.2 && temp <= 0.4) {
+    description = "Code Generation & Factual Tasks";
+  } else if (temp >= 0.6 && temp <= 0.8) {
+    description = "General Chat & Summarization";
+  } else if (temp >= 0.9 && temp <= 1.3) {
+    description = "Brainstorming & Creative Content";
+  } else if (temp >= 1.4 && temp <= 2.0) {
+    description = "Experimental / Highly Creative";
+  }
+  tempDescription.textContent = description;
+}
+
 tempInput.addEventListener('input', () => {
   tempValue.textContent = tempInput.value;
+  updateTempDescription();
 });
 tokensInput.addEventListener('input', () => {
   tokensValue.textContent = tokensInput.value;
 });
+
+// Set initial description on page load
+document.addEventListener('DOMContentLoaded', updateTempDescription);
 
 let controller = null;
 let attachedFile = null;
