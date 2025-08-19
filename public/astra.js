@@ -266,6 +266,7 @@ form.addEventListener('submit', async (e) => {
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
     let buffer = "";
+    let eventName = null;
 
     while (true) {
       const { value, done } = await reader.read();
@@ -276,26 +277,40 @@ form.addEventListener('submit', async (e) => {
       buffer = lines.pop() || "";
 
       for (const line of lines) {
-        if (line.startsWith("event: tool_result")) {
-          const data = JSON.parse(line.slice(line.indexOf(':') + 1).trim());
-          if (data.type === 'image') {
-            aiBubble.innerHTML = `<img src="${data.data}" class="msg-image" alt="generated image" />`;
-          }
-          return;
-        }
-        if (line.startsWith("event: done")) {
-          aiBubble.innerHTML = marked.parse(fullResponse);
-          fullResponse = "";
-          return;
-        }
-        if (line.startsWith("data:")) {
-          try {
-            const data = JSON.parse(line.slice(5).trim());
-            if (data.response) { // The raw stream uses 'response'
-              fullResponse += data.response;
-              aiBubble.innerHTML = marked.parse(fullResponse);
+        if (line.startsWith("event:")) {
+          eventName = line.substring(6).trim();
+        } else if (line.startsWith("data:")) {
+          const dataStr = line.substring(5).trim();
+          if (!dataStr) continue;
+
+          if (eventName === 'tool_result') {
+            try {
+              const data = JSON.parse(dataStr);
+              if (data.type === 'image') {
+                aiBubble.innerHTML = `<img src="${data.data}" class="msg-image" alt="generated image" />`;
+              }
+            } catch (e) {
+              aiBubble.innerHTML = `<span style="color:#b00">Error: ${e.message}</span>`;
             }
-          } catch {}
+            return;
+          } else if (eventName === 'done') {
+            aiBubble.innerHTML = marked.parse(fullResponse);
+            fullResponse = "";
+            return;
+          } else { // Default message
+            try {
+              const data = JSON.parse(dataStr);
+              if (data.response) {
+                fullResponse += data.response;
+                aiBubble.innerHTML = marked.parse(fullResponse);
+              }
+            } catch (e) {
+              // ignore incomplete json
+            }
+          }
+        } else if (line.trim() === '') {
+          // Reset on message boundary
+          eventName = null;
         }
       }
     }
