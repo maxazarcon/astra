@@ -299,7 +299,9 @@ form.addEventListener('submit', async (e) => {
               aiBubble.innerHTML += `<br><span style="color:#b00">Error: ${e.message}</span>`;
             }
           } else if (eventName === 'done') {
-            aiBubble.innerHTML = marked.parse(fullResponse);
+            if (fullResponse) {
+              aiBubble.innerHTML = marked.parse(fullResponse);
+            }
             fullResponse = "";
             return;
           } else { // Default message
