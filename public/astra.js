@@ -60,6 +60,7 @@ document.addEventListener('DOMContentLoaded', updateTempDescription);
 
 let controller = null;
 let attachedFile = null;
+let conversationHistory = [];
 
 attachBtn.addEventListener('click', () => {
   fileInput.click();
@@ -155,6 +156,10 @@ function displayImagePreview(file) {
 }
 
 function addMessage(role, text, imageUrl = null) {
+  // Add to history
+  if (text) { // Don't add empty messages
+    conversationHistory.push({ role, content: text });
+  }
   const msg = document.createElement('div');
   msg.className = `message ${role}`;
   
@@ -227,17 +232,22 @@ form.addEventListener('submit', async (e) => {
   const userImageURL = attachedFile ? URL.createObjectURL(attachedFile) : null;
   addMessage('user', prompt, userImageURL);
 
+  // Clear the input field immediately after capturing the prompt
+  promptInput.value = "";
+
   controller = new AbortController();
   let aiBubble = addMessage('ai', ''); // create placeholder
 
   if (prompt.startsWith('/imagine ')) {
     const imagePrompt = prompt.slice(8).trim();
+    // We don't add the command to history, just the eventual image.
+    // Let's remove the placeholder message from history.
+    conversationHistory.pop();
     await handleImageGeneration(imagePrompt, aiBubble);
     // Reset form and controls
     sendBtn.disabled = false;
     stopBtn.disabled = true;
     controller = null;
-    promptInput.value = "";
     promptInput.focus();
     return; // End execution here for image generation
   }
@@ -248,6 +258,11 @@ form.addEventListener('submit', async (e) => {
     formData.append('prompt', prompt);
     formData.append('temperature', temperature);
     formData.append('max_tokens', maxTokens);
+    
+    // Add conversation history (last 6 messages)
+    const history = conversationHistory.slice(-7, -1); // Get user prompt + last 5 messages
+    formData.append('history', JSON.stringify(history));
+
     if (attachedFile) {
       formData.append('image', attachedFile);
     }
@@ -270,7 +285,13 @@ form.addEventListener('submit', async (e) => {
 
     while (true) {
       const { value, done } = await reader.read();
-      if (done) break;
+      if (done) {
+        // Add the final AI response to history
+        if (fullResponse) {
+          conversationHistory.push({ role: 'ai', content: fullResponse });
+        }
+        break;
+      }
 
       buffer += decoder.decode(value, { stream: true });
       const lines = buffer.split("\n");
@@ -287,23 +308,25 @@ form.addEventListener('submit', async (e) => {
             try {
               const data = JSON.parse(dataStr);
               if (data.type === 'image') {
-                // Don't create a new bubble, add to the existing one
                 const img = document.createElement('img');
                 img.src = data.data;
                 img.className = 'msg-image';
                 img.alt = 'generated image';
                 aiBubble.appendChild(img);
                 thread.scrollTop = thread.scrollHeight;
+                // Add image to history as a special message
+                conversationHistory.push({ role: 'ai', content: `[Generated Image: ${prompt}]` });
               }
             } catch (e) {
               aiBubble.innerHTML += `<br><span style="color:#b00">Error: ${e.message}</span>`;
             }
           } else if (eventName === 'done') {
-            if (fullResponse) {
-              aiBubble.innerHTML = marked.parse(fullResponse);
-            }
-            fullResponse = "";
-            return;
+             if (fullResponse) {
+               aiBubble.innerHTML = marked.parse(fullResponse);
+               conversationHistory.push({ role: 'ai', content: fullResponse });
+             }
+             fullResponse = ""; // Clear for next message
+             // The 'done' event now just signals the end, history is added when the stream closes.
           } else { // Default message
             try {
               const data = JSON.parse(dataStr);
@@ -331,7 +354,7 @@ form.addEventListener('submit', async (e) => {
     sendBtn.disabled = false;
     stopBtn.disabled = true;
     controller = null;
-    promptInput.value = "";
+    // Input is cleared at the start of the submit handler
     if (attachedFile) {
       attachedFile = null;
       previewContainer.innerHTML = '';

@@ -1,0 +1,10 @@
+# Dependencies
+/node_modules
+
+# Cache
+.wrangler/
+.cache/
+
+# Local overrides
+.dev.vars
+.vscode/
