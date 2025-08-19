@@ -287,12 +287,17 @@ form.addEventListener('submit', async (e) => {
             try {
               const data = JSON.parse(dataStr);
               if (data.type === 'image') {
-                aiBubble.innerHTML = `<img src="${data.data}" class="msg-image" alt="generated image" />`;
+                // Don't create a new bubble, add to the existing one
+                const img = document.createElement('img');
+                img.src = data.data;
+                img.className = 'msg-image';
+                img.alt = 'generated image';
+                aiBubble.appendChild(img);
+                thread.scrollTop = thread.scrollHeight;
               }
             } catch (e) {
-              aiBubble.innerHTML = `<span style="color:#b00">Error: ${e.message}</span>`;
+              aiBubble.innerHTML += `<br><span style="color:#b00">Error: ${e.message}</span>`;
             }
-            return;
           } else if (eventName === 'done') {
             aiBubble.innerHTML = marked.parse(fullResponse);
             fullResponse = "";
